@@ -1,22 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>My First HTML Document</title>
+<meta charset="utf-8" />
+<title>Tourism in Australia — ABS OAD (Hotspots & Trends)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:24px;color:#222}
+  h1{font-size:1.8rem;margin-bottom:.25rem}
+  h2{margin:2rem 0 .5rem}
+  .wrap{max-width:1100px;margin:0 auto}
+  .grid{display:grid;grid-template-columns:1fr;gap:28px}
+  @media(min-width:980px){.grid{grid-template-columns:1fr 1fr}}
+  .note{font-size:.95rem;color:#444}
+  .src{font-size:.85rem;color:#666;margin-top:6px}
+  .hl{background:#fff6c2;padding:2px 6px;border-radius:6px}
+  .small{font-size:.8rem;color:#666}
+</style>
 </head>
 <body>
-    <h1>1. Introduction to HTML. (Level 1)</h1>
-    <h2>1.1 Creating Paragraphs (Level 2)</h2>
-    <p> Unit: FIT3179 Data visualization. </p>
-    <p> This is a paragraph about paragraphs. </p>
+<div class="wrap">
+  <h1>Tourism in Australia — Hotspots & Trends (ABS OAD)</h1>
+  <p class="note">
+    Explore <span class="hl">short-term visitor arrivals & departures</span> over time (left) and
+    <span class="hl">which states visitors intend to stay in</span> (right). Use the dropdowns and hover for tooltips.
+  </p>
 
-    <h2> 1.2 Creating Tables (Level 2)</h2>
-    <h3> 1.2.1 Table Rows (Level 3)</h3>
-    <p> This is a third paragraph about table rows</p>
-    
-    <h3> 1.2.2 Table Columns (Level 3)</h3>
-    <p> This is a paragraph about table columns.</p>
+  <div class="grid">
+    <!-- ========= TREND (Interactive line with annotations + dropdown) ========= -->
+    <div>
+      <h2>Short-term international travel — monthly trend</h2>
+      <p class="src">
+        Source: ABS <em>Overseas Arrivals and Departures, Australia (July 2025)</em>, Table 1.1.
+      </p>
+      <div id="trend"></div>
+      <p class="small">Notes: “Arrivals/Departures” are border crossings for short-term trips (&lt;1 year).</p>
+    </div>
 
-    <h2> 1.3 Embedding Images (Level 2)</h2>
-    <p>This is the fourth paragraph about images in HTML. </p>
+    <!-- ========= MAP (Year selector + proportional symbols on capitals) ========= -->
+    <div>
+      <h2>Visitor arrivals by state/territory of intended stay</h2>
+      <p class="src">
+        Source: ABS <em>Overseas Arrivals and Departures, Australia (July 2025)</em>, Table 2.4.
+      </p>
+      <div id="map"></div>
+      <p class="small">Month displayed in this map is July of each listed year.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   REAL ABS DATA (inline)
+   =========================
+   A) Monthly short-term Arrivals & Departures (Australia), Jan-2019 .. Jul-2025
+      Numbers copied from ABS OAD July-2025 release table sequence.
+*/
+const monthly = [
+  // date, arrivals(thousand), departures(thousand)
+  ["2019-01", 2220, 1910],
+  ["2019-02", 1790, 1520],
+  ["2019-03", 1660, 1680],
+  ["2019-04", 1670, 1830],
+  ["2019-05", 1590, 1630],
+  ["2019-06", 1560, 1800],
+  ["2019-07", 2010, 1760],
+  ["2019-08", 1780, 1810],
+  ["2019-09", 1750, 1800],
+  ["2019-10", 1980, 1680],
+  ["2019-11", 1720, 1740],
+  ["2019-12", 1890, 2240],
+  ["2020-01", 2260, 1970],
+  ["2020-02", 1570, 1290],
+  ["2020-03", 920, 830],
+  ["2020-04", 20, 60],
+  ["2020-05", 20, 30],
+  ["2020-06", 30, 40],
+  ["2020-07", 20, 60],
+  ["2020-08", 10, 60],
+  ["2020-09", 20, 50],
+  ["2020-10", 20, 50],
+  ["2020-11", 30, 40],
+  ["2020-12", 30, 50],
+  ["2021-01", 30, 40],
+  ["2021-02", 30, 30],
+  ["2021-03", 30, 30],
+  ["2021-04", 50, 60],
+  ["2021-05", 110,110],
+  ["2021-06", 100,100],
+  ["2021-07", 70, 90],
+  ["2021-08", 30, 40],
+  ["2021-09", 20, 30],
+  ["2021-10", 20, 40],
+  ["2021-11", 70, 90],
+  ["2021-12", 200,230],
+  ["2022-01", 270,190],
+  ["2022-02", 270,180],
+  ["2022-03", 370,340],
+  ["2022-04", 570,610],
+  ["2022-05", 650,660],
+  ["2022-06", 730,880],
+  ["2022-07", 1080,970],
+  ["2022-08", 1030,940],
+  ["2022-09", 1070,1040],
+  ["2022-10", 1210,1010],
+  ["2022-11", 1190,1180],
+  ["2022-12", 1260,1520],
+  ["2023-01", 1610,1380],
+  ["2023-02", 1380,1070],
+  ["2023-03", 1340,1320],
+  ["2023-04", 1370,1430],
+  ["2023-05", 1300,1360],
+  ["2023-06", 1360,1560],
+  ["2023-07", 1740,1490],
+  ["2023-08", 1540,1520],
+  ["2023-09", 1600,1590],
+  ["2023-10", 1740,1480],
+  ["2023-11", 1560,1590],
+  ["2023-12", 1700,2030],
+  ["2024-01", 2120,1750],
+  ["2024-02", 1790,1490],
+  ["2024-03", 1610,1710],
+  ["2024-04", 1630,1650],
+  ["2024-05", 1480,1560],
+  ["2024-06", 1530,1760],
+  ["2024-07", 1930,1650],
+  ["2024-08", 1660,1690],
+  ["2024-09", 1730,1800],
+  ["2024-10", 1940,1660],
+  ["2024-11", 1710,1780],
+  ["2024-12", 1850,2260],
+  ["2025-01", 2380,2030],
+  ["2025-02", 1870,1520],
+  ["2025-03", 1690,1670],
+  ["2025-04", 1760,1930],
+  ["2025-05", 1660,1680],
+  ["2025-06", 1620,1810],
+  ["2025-07", 2070,1820]
+];
+
+/* B) State/Territory of stay — July of 2019, 2023, 2024, 2025 (counts)
+      From Table 2.4 “Short-term visitor arrivals, state or territory of stay”.
+*/
+const stateJul = [
+  // year, state, value (number of arrivals)
+  [2019,"NSW",268050],[2019,"VIC",201930],[2019,"QLD",206910],[2019,"SA",21950],[2019,"WA",65260],[2019,"TAS",5670],[2019,"NT",9460],[2019,"ACT",11130],
+  [2023,"NSW",233530],[2023,"VIC",153260],[2023,"QLD",152860],[2023,"SA",18490],[2023,"WA",46450],[2023,"TAS",4150],[2023,"NT",5520],[2023,"ACT",10780],
+  [2024,"NSW",234450],[2024,"VIC",161390],[2024,"QLD",171360],[2024,"SA",15820],[2024,"WA",56420],[2024,"TAS",3900],[2024,"NT",6740],[2024,"ACT",8810],
+  [2025,"NSW",257410],[2025,"VIC",178600],[2025,"QLD",192900],[2025,"SA",21170],[2025,"WA",68780],[2025,"TAS",5350],[2025,"NT",8900],[2025,"ACT",9970]
+];
+
+// simple lookup of capital city coords to place bubbles
+const capitals = {
+  "NSW":[-33.8688,151.2093], "VIC":[-37.8136,144.9631], "QLD":[-27.4698,153.0251],
+  "SA":[-34.9285,138.6007], "WA":[-31.9523,115.8613], "TAS":[-42.8821,147.3272],
+  "NT":[-12.4634,130.8456], "ACT":[-35.2809,149.1300]
+};
+
+// reshape for Vega-Lite
+const monthlyRows = monthly.map(d=>({date:d[0], kind:"Arrivals", value:d[1]}))
+  .concat(monthly.map(d=>({date:d[0], kind:"Departures", value:d[2]})));
+
+const stateRows = stateJul.map(d=>{
+  const [y, st, v] = d;
+  const [lat, lon] = [capitals[st][0], capitals[st][1]];
+  return {year:y, state:st, value:v, lat, lon};
+});
+
+/* =========================
+   TREND SPEC
+   ========================= */
+const trendSpec = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:520, height:380,
+  data:{ values: monthlyRows },
+  params:[
+    { name:"series", value:"Arrivals",
+      bind:{ input:"select", name:"Series: ", options:["Arrivals","Departures"] }
+    }
+  ],
+  transform:[
+    { filter:"datum.kind == series" },
+    { calculate:"toDate(datum.date)", as:"Date" }
+  ],
+  layer:[
+    {
+      mark:{ type:"line", interpolate:"monotone", strokeWidth:2 },
+      encoding:{
+        x:{ field:"Date", type:"temporal", title:"Month"},
+        y:{ field:"value", type:"quantitative", title:"Trips (thousand)", scale:{ nice:true }},
+        color:{ value:"#1f77b4" },
+        tooltip:[
+          { field:"date", title:"Month" },
+          { field:"value", title:"Trips (k)", format:",.0f" }
+        ]
+      }
+    },
+    // Annotation: COVID border closure (Mar 2020)
+    {
+      mark:{ type:"rule", strokeDash:[6,4], strokeWidth:1.5 },
+      encoding:{ x:{ value:new Date("2020-03-01") }, color:{ value:"#555" } }
+    },
+    {
+      mark:{ type:"text", dy:-10, fontSize:12, fontWeight:"bold", align:"left" },
+      encoding:{ x:{ value:new Date("2020-03-01") }, y:{ datum:0 }, text:{ value:"Borders close (Mar 2020)" } }
+    },
+    // Annotation: International reopening phase (Feb 2022)
+    {
+      mark:{ type:"rule", strokeDash:[6,4], strokeWidth:1.5 },
+      encoding:{ x:{ value:new Date("2022-02-01") }, color:{ value:"#777" } }
+    },
+    {
+      mark:{ type:"text", dy:-10, fontSize:12, fontWeight:"bold", align:"left" },
+      encoding:{ x:{ value:new Date("2022-02-01") }, y:{ datum:0 }, text:{ value:"Reopening begins (Feb 2022)" } }
+    }
+  ]
+};
+
+/* =========================
+   MAP SPEC (bubbles on capitals)
+   ========================= */
+const mapSpec = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:520, height:520,
+  params:[
+    { name:"yr", value:2025, bind:{ input:"select", options:[2019,2023,2024,2025], name:"Year: " } }
+  ],
+  projection:{ type:"equalEarth", center:[133,-26], scale:850 },
+  layer:[
+    // graticule
+    { data:{ graticule:{ step:[10,10] } }, mark:{ type:"geoshape", stroke:"#ddd", strokeWidth:0.5 }},
+    // Australia outline (from world-110m)
+    {
+      data:{ url:"https://cdn.jsdelivr.net/npm/vega-datasets@2/data/world-110m.json",
+             format:{ type:"topojson", feature:"countries" } },
+      transform:[ { filter:"datum.id == 36" } ],
+      mark:{ type:"geoshape", fill:"#f7f7f7", stroke:"#999", strokeWidth:0.8 }
+    },
+    // bubbles
+    {
+      data:{ values: stateRows },
+      transform:[ { filter: "datum.year == yr" } ],
+      mark:{ type:"circle", opacity:0.85 },
+      encoding:{
+        longitude:{ field:"lon", type:"quantitative" },
+        latitude:{ field:"lat", type:"quantitative" },
+        size:{ field:"value", type:"quantitative", title:"Arrivals (count)",
+               scale:{ range:[40,2600] } },
+        color:{ field:"state", type:"nominal", legend:{ title:"State/Territory", columns:2 } },
+        tooltip:[
+          { field:"state", title:"State/Territory" },
+          { field:"value", title:"Arrivals (Jul, count)", format:",.0f" },
+          { field:"year", title:"Year" }
+        ]
+      }
+    }
+  ]
+};
+
+// Render
+vegaEmbed("#trend", trendSpec, { actions:false });
+vegaEmbed("#map",   mapSpec,   { actions:false });
+
+// helper
+function toDate(s){ const [y,m]=s.split("-"); return new Date(+y,+m-1,1); }
+</script>
 </body>
 </html>
