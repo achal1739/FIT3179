@@ -1,0 +1,17 @@
+state,market,nights_m
+New South Wales,Domestic,114.558
+Victoria,Domestic,80.795
+Queensland,Domestic,96.260
+South Australia,Domestic,25.931
+Western Australia,Domestic,49.533
+Tasmania,Domestic,12.403
+Northern Territory,Domestic,7.384
+Australian Capital Territory,Domestic,7.540
+New South Wales,International,101.842
+Victoria,International,81.054
+Queensland,International,52.075
+South Australia,International,15.233
+Western Australia,International,35.819
+Tasmania,International,4.428
+Northern Territory,International,4.099
+Australian Capital Territory,International,5.765
