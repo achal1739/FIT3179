@@ -1,22 +1,660 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>My First HTML Document</title>
-</head>
-<body>
-    <h1>1. Introduction to HTML. (Level 1)</h1>
-    <h2>1.1 Creating Paragraphs (Level 2)</h2>
-    <p> Unit: FIT3179 Data visualization. </p>
-    <p> This is a paragraph about paragraphs. </p>
+  <meta charset="utf-8" />
+  <title>Tourism Trends & Hotspots in Australia (2019–2025)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <h2> 1.2 Creating Tables (Level 2)</h2>
-    <h3> 1.2.1 Table Rows (Level 3)</h3>
-    <p> This is a third paragraph about table rows</p>
+  <!-- Vega libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0d1117; --fg:#e6edf3; --muted:#9fb0c0;
+      --accent:#71c2ff; --accent2:#f2a900;
+      --card:#111827; --grid:#1f2937;
+      --cat1:#71c2ff; --cat2:#f2a900; --cat3:#b48cf0; --cat4:#7bdcb5;
+      --cat5:#ffb86b; --cat6:#c5c6ff; --cat7:#ffdc7d; --cat8:#64d2ff;
+    }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+
+    /* Page container */
+    .page {
+      max-width: none;
+      padding: 28px 10% 96px 10%;
+    }
+
+    header {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: clamp(32px, 4.6vw, 48px);
+      line-height: 1.08;
+      margin: 6px 0 2px;
+    }
+
+    .sub, .meta { color: var(--muted); }
+    .sub { font-size: 15px; }
+    .meta { font-size: 12px; margin-top: 4px; }
+
+    /* --- SECTION HEADINGS --- */
+    h3.section {
+    font-weight: 800;
+    font-size: 22px;
+    margin: 36px 0 12px;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+    text-shadow: 0 0 6px rgba(113, 194, 255, 0.4);
+    }
+
+    /* --- IDIOM (CHART) TITLES --- */
+    h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 4px 0 8px;
+    color: #dbe3ec;
+    }
+
+
+
+    /* Grid rows for idioms and captions */
+    .row-idioms, .row-captions {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 899px) {
+      .row-idioms, .row-captions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* --- CARD STYLING --- */
+    .card {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 0 0 1px #1f29374d;
+    padding: 16px;
+    overflow: visible;
+    transition: background 0.3s ease;
+    }
+
+    .span4 { grid-column: span 4; }
+    .span6 { grid-column: span 6; }
+    .span8 { grid-column: span 8; }
+    .span12 { grid-column: 1 / -1; }
+
+    /* --- VISUALIZATION SEGMENTS --- */
+    .viz {
+    width: 100%;
+    height: auto;
+    min-height: 300px;
+    border-radius: 10px;
+    }
+
+    /* --- NARRATIVE TEXT --- */
+    .narrative {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0;
+    }
+    .narrative .line { display: block; }
+
+    /* --- CAPTION SEGMENTS DISTINCT STYLE --- */
+    .row-captions .card {
+    background: #1a2233; /* slightly lighter than idioms */
+    border-left: 3px solid var(--accent);
+    box-shadow: none;
+    padding: 12px 18px;
+    }
+
+    /* Swatches for legends */
+    .hlg {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin: 6px 2px 2px;
+    }
+    .sw {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      margin-right: 6px;
+    }
+    .sw.blue { background: var(--accent); }
+    .sw.orange { background: var(--accent2); }
+    /* Add clear vertical separation between section headers and idioms */
+    .card.span12:has(> h3.section) {
+    margin-bottom: 18px; /* space below section heading */
+    }
+
+    /* Add space between idiom row and caption row */
+    .row-idioms {
+    margin-bottom: 10px;
+    }
+
+    /* Slightly reduce gap between caption and next section heading */
+    .row-captions {
+    margin-bottom: 22px;
+    }
+
+    /* Ensure consistent top margin between sections */
+    .section {
+    margin-top: 36px;
+    }
+    .card.span12:has(> h3.section)::after {
+    content: "";
+    display: block;
+    height: 1px;
+    margin-top: 10px;
+    background: linear-gradient(90deg, rgba(113,194,255,0.4), transparent);
+    }
     
-    <h3> 1.2.2 Table Columns (Level 3)</h3>
-    <p> This is a paragraph about table columns.</p>
 
-    <h2> 1.3 Embedding Images (Level 2)</h2>
-    <p>This is the fourth paragraph about images in HTML. </p>
+    /* Section header card: clear and consistent spacing */
+    .section-card {
+    background: rgba(15, 23, 42, 0.75);  /* slightly lighter than chart cards */
+    border-radius: 14px;
+    box-shadow: 0 0 0 1px #1f29374d;
+    padding: 12px 16px;
+    margin: 28px 0 18px;                 /* NORMAL spacing above/below */
+    }
+
+    /* Remove heading's own margins so spacing is controlled by the card */
+    .section-card h3.section {
+    margin: 0;
+    line-height: 1.25;
+    }
+
+    /* Idiom (charts) row spacing */
+    .row-idioms { 
+    margin-top: 0; 
+    margin-bottom: 12px; 
+    }
+
+    /* Caption row spacing */
+    .row-captions { 
+    margin-top: 6px; 
+    margin-bottom: 26px; 
+    }
+
+    /* Make caption cards visually distinct from idioms */
+    .row-captions .card {
+    background: #1a2233;           /* lighter panel */
+    border-left: 3px solid var(--accent);
+    box-shadow: none;
+    padding: 12px 18px;
+    }
+
+    /* Tidy chart titles so they don't compete with section headers */
+    h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 2px 0 8px;
+    color: #dbe3ec;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>Tourism Trends & Hotspots in Australia</h1>
+      <p class="sub narrative">
+        Australia’s tourism recovery after disruptions reveals where travellers went,
+        how long they stayed, and what they spent. Together, these measures
+        build a layered story of renewal and resilience.
+      </p>
+      <div class="meta"><i>Author: Achal Singh. Last Updated 22nd Oct 2025.</i></div>
+    </header>
+
+    <!-- ========================================================= -->
+    <!-- Section 1: Where people went -->
+    <!-- ========================================================= -->
+    <div class="card span12 section-card"><h3 class="section">Where people went</h3></div>
+
+    <div class="row-idioms">
+      <div class="card span8">
+        <h2>International visitors by state</h2>
+        <div id="map-choropleth" class="viz"></div>
+      </div>
+      <div class="card span4">
+        <h2>Domestic nights and spend</h2>
+        <div id="map-bubbles" class="viz"></div>
+      </div>
+    </div>
+
+    <div class="row-captions">
+      <div class="card span8">
+        <p class="narrative">
+          International travel remained concentrated along the eastern seaboard.
+          New South Wales and Victoria retained dominance as borders reopened,
+          while regional destinations steadily rebuilt their visitor base as
+          connectivity and confidence improved.
+        </p>
+      </div>
+      <div class="card span4">
+        <p class="narrative">
+          Larger bubbles highlight where Australians spent the most nights and
+          money. Queensland and New South Wales led both categories, underscoring
+          their importance to domestic travel’s recovery.
+        </p>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- Section 2: How much they stayed and spent -->
+    <!-- ========================================================= -->
+    <div class="card span12 section-card"><h3 class="section">How much they stayed and spent</h3></div>
+
+    <div class="row-idioms">
+      <div class="card span6">
+        <h2>Domestic versus international nights</h2>
+        <div id="bars-stacked-nights" class="viz"></div>
+      </div>
+      <div class="card span6">
+        <h2>Spend per trip by market</h2>
+        <div id="clustered-spend" class="viz"></div>
+      </div>
+    </div>
+
+    <div class="row-captions">
+      <div class="card span6">
+        <p class="narrative">
+          Domestic nights continued to outweigh international stays,
+          demonstrating reliance on the local market for occupancy.
+          International travel has yet to return fully to its earlier scale,
+          though clear progress is visible by 2024.
+        </p>
+      </div>
+      <div class="card span6">
+        <p class="narrative">
+          International visitors still spend significantly more per trip than
+          domestic travellers. States emphasizing premium experiences and events
+          saw faster recovery in tourism revenue overall.
+        </p>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- Section 3: When demand returned -->
+    <!-- ========================================================= -->
+    <div class="card span12 section-card"><h3 class="section">When demand returned</h3></div>
+
+    <div class="row-idioms">
+      <div class="card span12">
+        <h2>Domestic travel over time</h2>
+        <div id="heatmap-seasonality" class="viz"></div>
+      </div>
+    </div>
+
+    <div class="row-captions">
+      <div class="card span12">
+        <p class="narrative">
+          Domestic travel surged back gradually following reopening, with brighter
+          shades marking increased trip volumes. Seasonal peaks re-emerged as flight
+          capacity and events resumed.
+        </p>
+      </div>
+    </div>
+
+    <div class="row-idioms">
+      <div class="card span12">
+        <h2>Domestic trip momentum by state</h2>
+        <div id="sparklines-domestic" class="viz"></div>
+      </div>
+    </div>
+
+    <div class="row-captions">
+      <div class="card span12">
+        <p class="narrative">
+          Time along the x-axis reflects actual dates by quarter and year.
+          Queensland and Western Australia accelerated earliest, while all other
+          states followed similar upward trajectories.
+        </p>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- Section 4: International position and recovery -->
+    <!-- ========================================================= -->
+    <div class="card span12 section-card"><h3 class="section">International position and recovery</h3></div>
+
+    <div class="row-idioms">
+      <div class="card span8">
+        <h2>State ranking of international visitors</h2>
+        <div id="bump-ranks" class="viz"></div>
+      </div>
+      <div class="card span4">
+        <h2>Recovery versus the 2019 baseline</h2>
+        <div id="slope-recovery" class="viz"></div>
+        <div class="hlg"><span class="sw blue"></span>2019 <span class="sw orange"></span>2024</div>
+      </div>
+    </div>
+
+    <div class="row-captions">
+      <div class="card span8">
+        <p class="narrative">
+          Leading states kept their ranks throughout the observed period. Mid-tier
+          positions converged as carriers reopened routes, suggesting a broad but
+          balanced national recovery.
+        </p>
+      </div>
+      <div class="card span4">
+        <p class="narrative">
+          Right-side points indicate stronger recovery relative to pre-COVID levels.
+          New South Wales rebounded quickest, while smaller destinations showed
+          slower yet steady improvement.
+        </p>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- Section 5: Who came to Australia -->
+    <!-- ========================================================= -->
+    <div class="card span12 section-card"><h3 class="section">Who came to Australia</h3></div>
+
+    <div class="row-idioms">
+      <div class="card span12">
+        <h2>Top source markets by visitors</h2>
+        <div id="top10-bars" class="viz"></div>
+      </div>
+    </div>
+
+    <div class="row-captions">
+      <div class="card span12">
+        <p class="narrative">
+          New Zealand led total arrivals in 2024, followed by China and the US.
+          Market composition shapes both seasonal timing and average spend,
+          reinforcing Asia-Pacific neighbours as Australia’s primary source.
+        </p>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- Section 6: Sources & Credits -->
+    <!-- ========================================================= -->
+    <div class="card span12 section-card">
+      <div class="card span12">
+        <h3 class="section">Sources & Credits</h3>
+        <p class="narrative">
+            <ul class="text-sm leading-snug text-gray-300">
+                <li>
+                    <strong>Tourism Research Australia (TRA).</strong>
+                    <em>National and International Visitor Survey – Backcast Overnight Spend ($M), Australia and States (2019–2024).</em>
+                    Tourism Research Australia, Australian Trade and Investment Commission (Austrade).
+                    Retrieved October 2025, from
+                    <a href="https://www.tra.gov.au/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">https://www.tra.gov.au/</a>.
+                </li>
+
+                <li>
+                    <strong>Tourism Research Australia (TRA).</strong>
+                    <em>Domestic and International Visitor Nights by State (YE Jun 2024).</em>
+                    Tourism Research Australia, Australian Trade and Investment Commission (Austrade).
+                    Dataset compiled using ABS and DFAT inputs. Retrieved October 2025.
+                    <a href="https://www.tra.gov.au/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">https://www.tra.gov.au/</a>.
+                </li>
+
+                <li>
+                    <strong>Australian Bureau of Statistics (ABS).</strong>
+                    <em>Tourism Satellite Account, 2019–2024.</em>
+                    ABS Catalogue No. 5249.0.
+                    Retrieved October 2025, from
+                    <a href="https://www.abs.gov.au/articles/overseas-arrivals-and-departures-australia-2024-25-financial-year#stva-duration-of-stay" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">ABS Data Explorer</a>.
+                </li>
+
+                <li>
+                    <strong>Australian Bureau of Statistics (ABS).</strong>
+                    <em>Overseas Arrivals and Departures, Australia, 2019–2024.</em>
+                    ABS Catalogue No. 3401.0.
+                    Retrieved October 2025, from
+                    <a href="https://www.abs.gov.au/articles/overseas-arrivals-and-departures-australia-2024-25-financial-year#stva-duration-of-stay" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">ABS Data Explorer</a>.
+                </li>
+
+                <li>
+                    <strong>Australian Bureau of Statistics (ABS).</strong>
+                    <em>ASGS Edition 3 – States and Territories Boundaries (GDA2020, 2021).</em>
+                    ABS Catalogue No. 1270.0.55.001. TopoJSON dataset used for geographic visualisation.
+                    Retrieved October 2025, from
+                    <a href="https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">ABS ASGS 2021</a>.
+                </li>
+            </ul>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  /* Wrap narrative text every 10 words */
+  function wrapAtWords(selector, maxWords){
+    document.querySelectorAll(selector).forEach(el=>{
+      const words = el.textContent.trim().split(/\s+/);
+      const lines = [];
+      for (let i=0;i<words.length;i+=maxWords){
+        lines.push(words.slice(i,i+maxWords).join(' '));
+      }
+      el.innerHTML = lines.map(l=>`<span class="line">${l}</span>`).join('');
+    });
+  }
+  document.addEventListener('DOMContentLoaded', ()=>wrapAtWords('.narrative',10));
+
+  const darkCfg = {
+    background:"#111827",
+    axis:{labelColor:"#b9c7d6",titleColor:"#b9c7d6",gridColor:"#1f2937"},
+    legend:{labelColor:"#b9c7d6",titleColor:"#b9c7d6"},
+    view:{stroke:null},
+    numberFormat: ",.0f",
+    range:{
+      category:[
+        getComputedStyle(document.documentElement).getPropertyValue('--cat1').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--cat2').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--cat3').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--cat4').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--cat5').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--cat6').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--cat7').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--cat8').trim()
+      ]
+    }
+  };
+  const embedOpts = { actions:false, renderer:'canvas' };
+
+  /* same chart specs as your working version but cleaned labels/tooltips */
+
+  // (1) Map Choropleth
+  vegaEmbed("#map-choropleth",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:420,
+    projection:{type:"albers", parallels:[-18,-36], rotate:[-132,0,0], center:[0,-27]},
+    data:{url:"data/au-states.topojson", format:{type:"topojson", feature:"STE_2021_AUST_GDA2020"}},
+    transform:[{lookup:"properties.STE_NAME21",
+      from:{data:{url:"data/state_international_share_2024.csv"},
+        key:"state", fields:["visitors_intl_share"]}}],
+    layer:[
+      {mark:{type:"geoshape", fill:"#0f172a", stroke:"#1f2937", strokeWidth:0.6}},
+      {mark:{type:"geoshape", stroke:"#1f2937", strokeWidth:0.6},
+       encoding:{
+         color:{field:"visitors_intl_share", type:"quantitative",
+           scale:{scheme:"oranges",domain:[0,0.45]},
+           legend:{title:"Intl visitor share",format:".0%"}},
+         tooltip:[{field:"properties.STE_NAME21",title:"State"},
+                  {field:"visitors_intl_share",format:".0%"}]
+       }}
+    ],
+    config:darkCfg
+  },embedOpts);
+
+  // (2) Bubble Map
+  vegaEmbed("#map-bubbles",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:300,
+    data:{url:"data/nights_by_state_2024.csv"},
+    transform:[
+      {filter:"datum.market === 'Domestic'"},
+      {lookup:"state",from:{data:{url:'data/spend_per_trip_2024.csv'},
+        key:'state',fields:['domestic_spend']}}
+    ],
+    mark:{type:"circle",opacity:0.85},
+    encoding:{
+      x:{field:"nights_m",type:"quantitative",title:"Nights (millions)"},
+      y:{field:"domestic_spend",type:"quantitative",title:"Spend per trip (AUD)",axis:{format:"$,.0f"}},
+      size:{field:"nights_m",type:"quantitative",scale:{range:[80,1400]},legend:{title:"Nights (M)"}},
+      color:{field:"state",type:"nominal",legend:{title:"State"}},
+      tooltip:[{field:"state"},{field:"nights_m",title:"Nights (M)"},{field:"domestic_spend",title:"Spend per trip",format:"$,"}]
+    },
+    config:darkCfg
+  },embedOpts);
+
+  // (3) Stacked bars: nights
+  vegaEmbed("#bars-stacked-nights",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container",height:360,
+    data:{url:"data/nights_by_state_2024.csv"},
+    encoding:{y:{field:"state",type:"ordinal",sort:"-x",title:null}},
+    layer:[
+      {mark:{type:"bar",cornerRadiusEnd:2},
+       encoding:{
+         x:{aggregate:"sum",field:"nights_m",type:"quantitative",title:"Nights (million)"},
+         color:{field:"market",type:"nominal",title:"Market",scale:{range:["#71c2ff","#f2a900"]}},
+         tooltip:[{field:"state"},{field:"market"},{aggregate:"sum",field:"nights_m",title:"Nights (M)"}]
+       }}
+    ],
+    config:darkCfg
+  },embedOpts);
+
+  // (4) Clustered bars: spend
+  vegaEmbed("#clustered-spend",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container",height:360,
+    data:{url:"data/spend_per_trip_2024.csv"},
+    transform:[
+      {fold:["domestic_spend","international_spend"],as:["market","spend"]},
+      {calculate:"datum.market==='domestic_spend' ? 'Domestic' : 'International'",as:"market_label"}
+    ],
+    mark:{type:"bar",cornerRadiusEnd:2},
+    encoding:{
+      x:{field:"state",type:"nominal",axis:{labelAngle:-35}},
+      xOffset:{field:"market_label"},
+      y:{field:"spend",type:"quantitative",axis:{title:"Spend per trip (AUD)",format:"$,.0f"}},
+      color:{field:"market_label",type:"nominal",scale:{range:["#71c2ff","#f2a900"]},title:"Market"},
+      tooltip:[{field:"state"},{field:"market_label",title:"Market"},{field:"spend",title:"Spend per trip",format:"$,"}]
+    },
+    config:darkCfg
+  },embedOpts);
+
+  // (5) Heatmap
+  vegaEmbed("#heatmap-seasonality",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container",height:320,
+    data:{url:"data/backcast_domestic_overnight_2019_2024.csv"},
+    transform:[{aggregate:[{op:"sum",field:"trips_000",as:"trips_y"}],groupby:["year","state"]}],
+    mark:"rect",
+    encoding:{
+      y:{field:"state",type:"ordinal"},
+      x:{field:"year",type:"ordinal"},
+      color:{field:"trips_y",type:"quantitative",scale:{scheme:"blues"},title:"Trips (000)"},
+      tooltip:[{field:"state"},{field:"year"},{field:"trips_y",title:"Trips (000)"}]
+    },
+    config:darkCfg
+  },embedOpts);
+
+  // (6) Sparklines
+  vegaEmbed("#sparklines-domestic",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container",height:380,
+    data:{url:"data/backcast_domestic_overnight_2019_2024.csv"},
+    transform:[
+      {calculate:"indexof(['Q1','Q2','Q3','Q4'], datum.quarter)",as:"qIndex"},
+      {calculate:"toNumber(datum.year)",as:"yNum"},
+      {calculate:"datetime(datum.yNum, datum.qIndex*3, 1)",as:"tdate"}
+    ],
+    mark:{type:"line",interpolate:"monotone",strokeWidth:2},
+    encoding:{
+      x:{field:"tdate",type:"temporal",axis:{format:"%Y"}},
+      y:{field:"trips_000",type:"quantitative",title:"Trips ('000)"},
+      color:{field:"state",type:"nominal",legend:{title:"State"}},
+      tooltip:[{field:"state"},{field:"tdate",title:"Period",type:"temporal",format:"%Y Q%q"},{field:"trips_000",title:"Trips (000)"}]
+    },
+    config:darkCfg
+  },embedOpts);
+
+  // (7) Bump chart
+  vegaEmbed("#bump-ranks",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container",height:320,
+    data:{url:"data/intl_visitors_by_state_year.csv"},
+    transform:[
+      {window:[{op:"rank",as:"rank"}],
+       sort:[{field:"visitors",order:"descending"}],groupby:["year"]}
+    ],
+    mark:{type:"line",point:true},
+    encoding:{
+      x:{field:"year",type:"ordinal"},
+      y:{field:"rank",type:"quantitative",axis:{title:"Rank (1 = most)",reverse:true}},
+      color:{field:"state",type:"nominal",legend:{title:"State"}},
+      tooltip:[{field:"state"},{field:"year"},{field:"rank"}]
+    },
+    config:darkCfg
+  },embedOpts);
+
+  // (8) Slopegraph
+  vegaEmbed("#slope-recovery",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container",height:320,
+    data:{url:"data/recovery_2019_2024.csv"},
+    layer:[
+      {mark:{type:"rule",stroke:"#304158"},
+       encoding:{y:{field:"state"},x:{field:"y2019"},x2:{field:"y2024"}}},
+      {mark:{type:"point",filled:true,size:70,color:"#71c2ff"},
+       encoding:{x:{field:"y2019"},y:{field:"state"},tooltip:[{field:"state"},{field:"y2019",title:"2019"}]}},
+      {mark:{type:"point",filled:true,size:70,color:"#f2a900"},
+       encoding:{x:{field:"y2024"},y:{field:"state"},tooltip:[{field:"state"},{field:"y2024",title:"2024"}]}}
+    ],
+    config:darkCfg
+  },embedOpts);
+
+  // (9) Top 10 bars – labels removed, clean tooltip only
+  vegaEmbed("#top10-bars",{
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container",height:420,
+    data:{url:"data/source_markets_2024.csv"},
+    transform:[
+      {filter:"isValid(datum.visitors) && isFinite(+datum.visitors)"},
+      {window:[{op:"rank",as:"rk"}],sort:[{field:"visitors",order:"descending"}]},
+      {filter:"datum.rk<=10"}
+    ],
+    mark:{type:"bar",cornerRadiusTopLeft:3,cornerRadiusTopRight:3,tooltip:true},
+    encoding:{
+      x:{field:"country",type:"ordinal",axis:{labelAngle:-30}},
+      y:{field:"visitors",type:"quantitative",title:"Visitors"},
+      color:{value:"#71c2ff"},
+      tooltip:[{field:"country"},{field:"visitors",title:"Visitors",format:","}]
+    },
+    config:darkCfg
+  },embedOpts);
+</script>
 </body>
 </html>
